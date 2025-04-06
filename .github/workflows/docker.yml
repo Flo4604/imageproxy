@@ -4,10 +4,12 @@ on:
   push:
     branches: ["main"]
     tags: ["v*"]
+  workflow_dispatch:
   pull_request:
     # Run the workflow on pull_request events to ensure we can still build the image.
     # We only publish the image on push events (see if statements in steps below).
     branches: ["main"]
+ 
 
 env:
   REGISTRY: ghcr.io
