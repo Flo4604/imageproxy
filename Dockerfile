@@ -1,24 +1,20 @@
-# syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base as build
-LABEL maintainer="Will Norris <will@willnorris.com>"
-
-RUN apk update && apk add build-base git openssh go-1.21 libwebp-dev
+# Base stage
+FROM golang:1.24 AS base
 
 WORKDIR /app
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends ca-certificates libwebp-dev
+
+# Build stage
+FROM base AS build
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
 
-ARG TARGETOS
-ARG TARGETARCH
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v ./cmd/imageproxy
+RUN go build -o bin/imageproxy ./cmd/imageproxy
 
-FROM cgr.dev/chainguard/static:latest
-
-COPY --from=build /app/imageproxy /app/imageproxy
-
-CMD ["-addr", "0.0.0.0:8080"]
-ENTRYPOINT ["/app/imageproxy"]
-
-EXPOSE 8080
+# Runner stage
+FROM gcr.io/distroless/static-debian12 AS runner
+COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /app/bin/imageproxy /imageproxy
+ENTRYPOINT ["/imageproxy"]
