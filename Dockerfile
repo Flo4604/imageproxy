@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base as build
 LABEL maintainer="Will Norris <will@willnorris.com>"
 
-RUN apk update && apk add build-base git openssh go-1.21
+RUN apk update && apk add build-base git openssh go-1.21 libwebp-dev
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -12,7 +12,7 @@ COPY . .
 
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v ./cmd/imageproxy
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v ./cmd/imageproxy
 
 FROM cgr.dev/chainguard/static:latest
 

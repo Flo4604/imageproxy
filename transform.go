@@ -68,7 +68,7 @@ func Transform(img []byte, opt Options) ([]byte, error) {
 		format = opt.Format
 	}
 
-	if opt.Format == "" {
+	if opt.Format == "" && format != "svg" {
 		format = "webp"
 	}
 
