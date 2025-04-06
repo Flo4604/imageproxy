@@ -1,0 +1,14 @@
+name: imageproxy
+
+services:
+    img:
+        command: ["-addr", ":8080"]
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        # environment:
+        volumes:
+            - /tmp:/tmp
+
+volumes:
+    tmp:
